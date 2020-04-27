@@ -24,8 +24,6 @@ public class KafkaProducerConfiguration {
   @Autowired
   private KafkaProducerProperties kafkaProducerProperties;
 
-  // TODO: spring boot kafka template
-
   @Profile("simple")
   @Bean("streamKafkaProducer")
   public KafkaProducer<String, Message> streamKafkaProducer() {
