@@ -1,4 +1,4 @@
-package com.github.coobik.kprod;
+package com.github.coobik.kprod.kafka;
 
 import java.util.Properties;
 
@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+
+import com.github.coobik.kprod.model.Message;
 
 
 @Configuration

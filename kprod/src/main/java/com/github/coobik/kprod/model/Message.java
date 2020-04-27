@@ -1,4 +1,4 @@
-package com.github.coobik.kprod;
+package com.github.coobik.kprod.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

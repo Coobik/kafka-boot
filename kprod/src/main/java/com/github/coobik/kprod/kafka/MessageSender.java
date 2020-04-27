@@ -1,4 +1,4 @@
-package com.github.coobik.kprod;
+package com.github.coobik.kprod.kafka;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.coobik.kprod.model.Message;
 
 
 @Service

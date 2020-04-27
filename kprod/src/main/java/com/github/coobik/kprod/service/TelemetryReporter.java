@@ -1,10 +1,13 @@
-package com.github.coobik.kprod;
+package com.github.coobik.kprod.service;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import com.github.coobik.kprod.kafka.MessageSender;
+import com.github.coobik.kprod.model.Message;
 
 
 @Service
