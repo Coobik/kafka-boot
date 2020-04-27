@@ -12,17 +12,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.coobik.kprod.model.Message;
 
 
-@Service
-public class MessageSender {
+@Component
+@Profile("simple")
+public class SimpleMessageSender {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MessageSender.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMessageSender.class);
 
   @Value("${kafka.producer.topic}")
   private String topic;
@@ -35,7 +37,7 @@ public class MessageSender {
 
   @PostConstruct
   public void init() {
-    LOGGER.info("MessageSender started");
+    LOGGER.info("SimpleMessageSender started");
   }
 
   @PreDestroy
@@ -58,7 +60,7 @@ public class MessageSender {
     ProducerRecord<String, Message> record =
         new ProducerRecord<String, Message>(topic, key, message);
 
-    streamKafkaProducer.send(record, MessageSender::onCompletion);
+    streamKafkaProducer.send(record, SimpleMessageSender::onCompletion);
   }
 
   private String toJson(Message message) {

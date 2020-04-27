@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.github.coobik.kprod.kafka.MessageSender;
+import com.github.coobik.kprod.kafka.SimpleMessageSender;
 import com.github.coobik.kprod.model.Message;
 
 
@@ -20,7 +20,7 @@ public class TelemetryReporter {
   private String key;
 
   @Autowired
-  private MessageSender messageSender;
+  private SimpleMessageSender messageSender;
 
   @Scheduled(
       fixedDelayString = "${report.fixed.delay.ms}",
