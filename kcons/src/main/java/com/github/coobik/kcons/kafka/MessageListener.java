@@ -16,9 +16,9 @@ import com.github.coobik.kcons.service.MessageProcessor;
 
 
 @Component
-public class MessageKafkaListener {
+public class MessageListener {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MessageKafkaListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MessageListener.class);
 
   @Autowired
   private MessageProcessor messageProcessor;
