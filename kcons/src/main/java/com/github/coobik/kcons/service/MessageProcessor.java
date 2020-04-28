@@ -1,5 +1,9 @@
 package com.github.coobik.kcons.service;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -14,6 +18,13 @@ public class MessageProcessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageProcessor.class);
 
+  /**
+   * CountDownLatch for testing
+   */
+  private CountDownLatch latch;
+
+  private final List<Message> processedMessages = new LinkedList<>();
+
   @PostConstruct
   public void init() {
     LOGGER.info(getClass().getSimpleName() + " started");
@@ -27,6 +38,22 @@ public class MessageProcessor {
 
     LOGGER.info("message: {} : {}",
         message.getTimestamp(), message.getValue());
+
+    processedMessages.add(message);
+
+    afterProcessMessage();
+  }
+
+  private void afterProcessMessage() {
+    if (latch == null) {
+      return;
+    }
+
+    latch.countDown();
+  }
+
+  public List<Message> getProcessedMessages() {
+    return processedMessages;
   }
 
 }

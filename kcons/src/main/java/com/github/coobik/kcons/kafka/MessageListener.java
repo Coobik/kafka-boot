@@ -38,7 +38,7 @@ public class MessageListener {
   @KafkaListener(
       id = "messageKafkaListener",
       idIsGroup = false,
-      topics = "${kafka.consumer.topic}",
+      topics = "${kafka.consumer.topic:friday-stream}",
       containerFactory = "messageListenerContainerFactory")
   public void listen(@Payload(required = false) Message message, @Headers MessageHeaders headers) {
     if (message == null) {
