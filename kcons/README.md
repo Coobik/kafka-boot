@@ -1,6 +1,6 @@
 # kcons
 
-Example Kafka Consumer built on Spring Boot 2.1.13
+Example Kafka Consumer built on Spring Boot 2.2.6.RELEASE
 
 Listens to messages on `kafka.consumer.topic` topic
 
