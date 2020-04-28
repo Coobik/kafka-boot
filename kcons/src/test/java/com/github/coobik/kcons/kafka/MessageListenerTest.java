@@ -5,8 +5,9 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -21,13 +22,12 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.github.coobik.kcons.model.Message;
 import com.github.coobik.kcons.service.MessageProcessor;
 
 
-@RunWith(SpringRunner.class)
+@RunWith(JUnitPlatform.class)
 @SpringBootTest(
     properties = {
         // set bootstrapServers to embedded kafka before listeners start
@@ -62,7 +62,7 @@ public class MessageListenerTest {
   @Value("${kafka.consumer.topic}")
   private String topic;
 
-  @Before
+  @BeforeEach
   public void beforeEach() {
     MockitoAnnotations.initMocks(this);
 
