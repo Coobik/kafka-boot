@@ -5,6 +5,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
@@ -16,6 +17,7 @@ import com.github.coobik.kcons.service.MessageProcessor;
 
 
 @Component
+@ConditionalOnBean(KafkaConsumerConfiguration.class)
 public class MessageListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageListener.class);

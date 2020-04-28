@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "kafka.consumer")
 public class KafkaConsumerProperties {
 
+  private boolean enabled;
+
   private String bootstrapServers;
   private String groupId;
   private String topic;
@@ -21,6 +23,14 @@ public class KafkaConsumerProperties {
 
   private boolean useHeadersIfPresent;
   private String[] trustedPackages;
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 
   public String getBootstrapServers() {
     return bootstrapServers;
