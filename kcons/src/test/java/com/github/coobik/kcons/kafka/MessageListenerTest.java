@@ -32,7 +32,8 @@ import com.github.coobik.kcons.service.MessageProcessor;
     properties = {
         // set bootstrapServers to embedded kafka before listeners start
         "kafka.consumer.bootstrapServers=${spring.embedded.kafka.brokers}",
-        "kafka.consumer.enabled=true"
+        "kafka.consumer.enabled=true",
+        "kafka.consumer.useHeadersIfPresent=true"
     })
 @DirtiesContext
 @EmbeddedKafka(
