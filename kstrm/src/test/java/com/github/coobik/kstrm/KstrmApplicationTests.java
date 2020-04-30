@@ -7,7 +7,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(
+    properties = {
+        "kafka.streams.enabled=false"
+    })
 public class KstrmApplicationTests {
 
   @Test
