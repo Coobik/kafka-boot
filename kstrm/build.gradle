@@ -18,6 +18,9 @@ dependencies {
   implementation 'org.springframework.kafka:spring-kafka'
   implementation 'org.apache.kafka:kafka-streams'
 
+  // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'org.springframework.kafka:spring-kafka-test'
 }

@@ -2,6 +2,7 @@ package com.github.coobik.kstrm.kafka;
 
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -43,6 +44,7 @@ public class KafkaStreamsConfiguration {
         streamsBuilder.stream(kafkaStreamsProperties.getInputTopic());
 
     messageStream
+        .filter((key, value) -> StringUtils.isNotBlank(value))
         .filter((key, value) -> value.contains(kafkaStreamsProperties.getValueFilter()))
         .mapValues((key, value) -> String.format("{\"%s\":%s}", key, value))
         .to(kafkaStreamsProperties.getOutputTopic());
