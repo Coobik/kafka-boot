@@ -20,6 +20,8 @@ public class KafkaStreamsProperties {
 
   private String autoOffsetReset;
 
+  private String valueFilter;
+
   public boolean isEnabled() {
     return enabled;
   }
@@ -74,6 +76,14 @@ public class KafkaStreamsProperties {
 
   public void setAutoOffsetReset(String autoOffsetReset) {
     this.autoOffsetReset = autoOffsetReset;
+  }
+
+  public String getValueFilter() {
+    return valueFilter;
+  }
+
+  public void setValueFilter(String valueFilter) {
+    this.valueFilter = valueFilter;
   }
 
 }

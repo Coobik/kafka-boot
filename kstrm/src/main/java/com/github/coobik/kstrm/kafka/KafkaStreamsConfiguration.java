@@ -9,7 +9,10 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,26 +22,39 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "kafka.streams", name = "enabled", havingValue = "true")
 public class KafkaStreamsConfiguration {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(KafkaStreamsConfiguration.class);
+
   @Autowired
   private KafkaStreamsProperties kafkaStreamsProperties;
 
   @Bean
-  public KafkaStreams kafkaStreams() {
+  @Autowired
+  public KafkaStreams kafkaStreams(
+      Topology topology,
+      @Qualifier("streamProperties") Properties streamProperties) {
+    return new KafkaStreams(topology, streamProperties);
+  }
+
+  @Bean
+  public Topology topology() {
     StreamsBuilder streamsBuilder = new StreamsBuilder();
 
     KStream<String, String> messageStream =
         streamsBuilder.stream(kafkaStreamsProperties.getInputTopic());
 
     messageStream
-        .filter((key, value) -> value.contains("0"))
+        .filter((key, value) -> value.contains(kafkaStreamsProperties.getValueFilter()))
         .mapValues((key, value) -> String.format("{\"%s\":%s}", key, value))
         .to(kafkaStreamsProperties.getOutputTopic());
 
     Topology topology = streamsBuilder.build();
-    return new KafkaStreams(topology, streamProperties());
+    LOGGER.info("kafka streams {}", topology.describe());
+
+    return topology;
   }
 
-  private Properties streamProperties() {
+  @Bean("streamProperties")
+  public Properties streamProperties() {
     Properties streamProperties = new Properties();
 
     streamProperties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,
