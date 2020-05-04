@@ -17,6 +17,7 @@ public class KafkaStreamsProperties {
 
   private String inputTopic;
   private String outputTopic;
+  private String countOutputTopic;
 
   private String autoOffsetReset;
 
@@ -68,6 +69,14 @@ public class KafkaStreamsProperties {
 
   public void setOutputTopic(String outputTopic) {
     this.outputTopic = outputTopic;
+  }
+
+  public String getCountOutputTopic() {
+    return countOutputTopic;
+  }
+
+  public void setCountOutputTopic(String countOutputTopic) {
+    this.countOutputTopic = countOutputTopic;
   }
 
   public String getAutoOffsetReset() {

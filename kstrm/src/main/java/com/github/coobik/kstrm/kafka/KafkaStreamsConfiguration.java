@@ -5,11 +5,16 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,16 +48,34 @@ public class KafkaStreamsConfiguration {
     KStream<String, String> messageStream =
         streamsBuilder.stream(kafkaStreamsProperties.getInputTopic());
 
-    messageStream
-        .filter((key, value) -> StringUtils.isNotBlank(value))
-        .filter((key, value) -> value.contains(kafkaStreamsProperties.getValueFilter()))
-        .mapValues((key, value) -> String.format("{\"%s\":%s}", key, value))
-        .to(kafkaStreamsProperties.getOutputTopic());
+    defineStreamProcessing(messageStream);
 
     Topology topology = streamsBuilder.build();
     LOGGER.info("kafka streams {}", topology.describe());
 
     return topology;
+  }
+
+  private void defineStreamProcessing(KStream<String, String> messageStream) {
+    KStream<String, String> mappedStream =
+        messageStream
+            .filterNot((key, value) -> StringUtils.isBlank(value))
+            .filter((key, value) -> value.contains(kafkaStreamsProperties.getValueFilter()))
+            .mapValues((key, value) -> String.format("{\"%s\":%s}", key, value));
+
+    mappedStream.to(kafkaStreamsProperties.getOutputTopic());
+
+    KTable<String, Long> countTable =
+        mappedStream
+            .groupByKey()
+            .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("count-store"));
+
+    LOGGER.info("countTable store: {}", countTable.queryableStoreName());
+
+    countTable
+        .toStream()
+        .to(kafkaStreamsProperties.getCountOutputTopic(),
+            Produced.with(Serdes.String(), Serdes.Long()));
   }
 
   @Bean("streamProperties")
