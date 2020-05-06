@@ -20,9 +20,16 @@ public class KafkaStreamsStarter {
   @Autowired
   private KafkaStreams kafkaStreams;
 
+  @Autowired
+  private KafkaStreamsProperties kafkaStreamsProperties;
+
   @PostConstruct
   public void init() {
     LOGGER.info("{} constructed", getClass().getSimpleName());
+
+    if (kafkaStreamsProperties.isCleanUpBeforeStart()) {
+      cleanUp();
+    }
 
     LOGGER.info("starting KafkaStreams...");
     kafkaStreams.start();
@@ -34,6 +41,18 @@ public class KafkaStreamsStarter {
     LOGGER.info("closing KafkaStreams...");
     kafkaStreams.close();
     LOGGER.info("KafkaStreams closed");
+
+    if (kafkaStreamsProperties.isCleanUpAfterClose()) {
+      cleanUp();
+    }
+  }
+
+  private void cleanUp() {
+    LOGGER.info("cleaning up local state store: {} for: {}",
+        kafkaStreamsProperties.getStateDir(),
+        kafkaStreamsProperties.getApplicationId());
+
+    kafkaStreams.cleanUp();
   }
 
 }

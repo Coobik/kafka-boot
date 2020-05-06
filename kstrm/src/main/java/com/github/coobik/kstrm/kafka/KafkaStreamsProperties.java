@@ -18,10 +18,15 @@ public class KafkaStreamsProperties {
   private String inputTopic;
   private String outputTopic;
   private String countOutputTopic;
+  private String windowedCountOutputTopic;
+  private String sessionCountOutputTopic;
 
   private String autoOffsetReset;
 
   private String valueFilter;
+
+  private boolean cleanUpBeforeStart;
+  private boolean cleanUpAfterClose;
 
   public boolean isEnabled() {
     return enabled;
@@ -79,6 +84,22 @@ public class KafkaStreamsProperties {
     this.countOutputTopic = countOutputTopic;
   }
 
+  public String getWindowedCountOutputTopic() {
+    return windowedCountOutputTopic;
+  }
+
+  public void setWindowedCountOutputTopic(String windowedCountOutputTopic) {
+    this.windowedCountOutputTopic = windowedCountOutputTopic;
+  }
+
+  public String getSessionCountOutputTopic() {
+    return sessionCountOutputTopic;
+  }
+
+  public void setSessionCountOutputTopic(String sessionCountOutputTopic) {
+    this.sessionCountOutputTopic = sessionCountOutputTopic;
+  }
+
   public String getAutoOffsetReset() {
     return autoOffsetReset;
   }
@@ -93,6 +114,22 @@ public class KafkaStreamsProperties {
 
   public void setValueFilter(String valueFilter) {
     this.valueFilter = valueFilter;
+  }
+
+  public boolean isCleanUpBeforeStart() {
+    return cleanUpBeforeStart;
+  }
+
+  public void setCleanUpBeforeStart(boolean cleanUpBeforeStart) {
+    this.cleanUpBeforeStart = cleanUpBeforeStart;
+  }
+
+  public boolean isCleanUpAfterClose() {
+    return cleanUpAfterClose;
+  }
+
+  public void setCleanUpAfterClose(boolean cleanUpAfterClose) {
+    this.cleanUpAfterClose = cleanUpAfterClose;
   }
 
 }

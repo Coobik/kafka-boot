@@ -10,11 +10,19 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.SessionWindowedKStream;
+import org.apache.kafka.streams.kstream.SessionWindows;
+import org.apache.kafka.streams.kstream.TimeWindowedKStream;
+import org.apache.kafka.streams.kstream.TimeWindows;
+import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.SessionStore;
+import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +65,74 @@ public class KafkaStreamsConfiguration {
   }
 
   private void defineStreamProcessing(KStream<String, String> messageStream) {
+    KStream<String, String> mappedStream = mapStream(messageStream);
+    KGroupedStream<String, String> groupedStream = mappedStream.groupByKey();
+    countStream(groupedStream);
+    countWindowedStream(groupedStream);
+    countSessionStream(groupedStream);
+  }
+
+  private void countWindowedStream(KGroupedStream<String, String> groupedStream) {
+    TimeWindows windows =
+        TimeWindows
+            .of(10000L)
+            .advanceBy(10000L)
+            .until(12000L);
+
+    TimeWindowedKStream<String, String> windowedStream = groupedStream.windowedBy(windows);
+
+    KTable<Windowed<String>, Long> windowedCountTable =
+        windowedStream.count(
+            Materialized.<String, Long, WindowStore<Bytes, byte[]>>as("windowed-count-store"));
+
+    // TODO: no suppress in kafka-streams 2.0.1
+
+    LOGGER.info("windowedCountTable store: {}", windowedCountTable.queryableStoreName());
+
+    windowedTableToTopic(windowedCountTable, kafkaStreamsProperties.getWindowedCountOutputTopic());
+  }
+
+  private void countSessionStream(KGroupedStream<String, String> groupedStream) {
+    long inactivityGapMs = 30000L;
+
+    SessionWindows windows =
+        SessionWindows
+            .with(inactivityGapMs)
+            .until(30000L);
+
+    SessionWindowedKStream<String, String> sessionStream = groupedStream.windowedBy(windows);
+
+    KTable<Windowed<String>, Long> sessionCountTable =
+        sessionStream.count(
+            Materialized.<String, Long, SessionStore<Bytes, byte[]>>as("session-count-store"));
+
+    LOGGER.info("sessionCountTable store: {}", sessionCountTable.queryableStoreName());
+
+    windowedTableToTopic(sessionCountTable, kafkaStreamsProperties.getSessionCountOutputTopic());
+  }
+
+  private void windowedTableToTopic(
+      KTable<Windowed<String>, Long> windowedTable,
+      String outputTopic) {
+    windowedTable
+        .toStream((windowedKey, value) -> (windowedKey.key() + "_" + windowedKey.window().end()))
+        .to(outputTopic, Produced.with(Serdes.String(), Serdes.Long()));
+  }
+
+  private void countStream(KGroupedStream<String, String> groupedStream) {
+    KTable<String, Long> countTable =
+        groupedStream.count(
+            Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("count-store"));
+
+    LOGGER.info("countTable store: {}", countTable.queryableStoreName());
+
+    countTable
+        .toStream()
+        .to(kafkaStreamsProperties.getCountOutputTopic(),
+            Produced.with(Serdes.String(), Serdes.Long()));
+  }
+
+  private KStream<String, String> mapStream(KStream<String, String> messageStream) {
     KStream<String, String> mappedStream =
         messageStream
             .filterNot((key, value) -> StringUtils.isBlank(value))
@@ -65,17 +141,7 @@ public class KafkaStreamsConfiguration {
 
     mappedStream.to(kafkaStreamsProperties.getOutputTopic());
 
-    KTable<String, Long> countTable =
-        mappedStream
-            .groupByKey()
-            .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("count-store"));
-
-    LOGGER.info("countTable store: {}", countTable.queryableStoreName());
-
-    countTable
-        .toStream()
-        .to(kafkaStreamsProperties.getCountOutputTopic(),
-            Produced.with(Serdes.String(), Serdes.Long()));
+    return mappedStream;
   }
 
   @Bean("streamProperties")
@@ -95,6 +161,7 @@ public class KafkaStreamsConfiguration {
     streamProperties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
         Serdes.String().getClass());
 
+    // local state dir for state storage powered by rocksdb
     streamProperties.put(StreamsConfig.STATE_DIR_CONFIG,
         kafkaStreamsProperties.getStateDir());
 
